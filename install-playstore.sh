@@ -27,6 +27,12 @@
 # die when an error occurs
 set -e
 
+sudo kmodsign sha512 /var/lib/shim-signed/mok/MOK.priv /var/lib/shim-signed/mok/MOK.der /lib/modules/`uname -r`/kernel/drivers/staging/android/ashmem_linux.ko
+sudo modprobe ashmem_linux
+sudo modprobe binder_linux
+snap install --devmode --edge anbox
+
+
 WORKDIR="$(pwd)/anbox-work"
 
 # use sudo if installed
@@ -129,22 +135,10 @@ fi
 
 
 ANBOX=$(which anbox)
-SNAP_TOP=""
-if ( [ -d '/var/snap' ] || [ -d '/snap' ] ) && \
-	( [ ${ANBOX} = "/snap/bin/anbox" ] || [ ${ANBOX} == /var/lib/snapd/snap/bin/anbox ] );then
-	if [ -d '/snap' ];then
-		SNAP_TOP=/snap
-	else
-		SNAP_TOP=/var/lib/snapd/snap
-	fi
-	COMBINEDDIR="/var/snap/anbox/common/combined-rootfs"
-	OVERLAYDIR="/var/snap/anbox/common/rootfs-overlay"
-	WITH_SNAP=true
-else
-	COMBINEDDIR="/var/lib/anbox/combined-rootfs"
-	OVERLAYDIR="/var/lib/anbox/rootfs-overlay"
-	WITH_SNAP=false
-fi
+SNAP_TOP=/snap
+COMBINEDDIR="/var/snap/anbox/common/combined-rootfs"
+OVERLAYDIR="/var/snap/anbox/common/rootfs-overlay"
+WITH_SNAP=true
 
 if [ ! -d "$COMBINEDDIR" ]; then
   # enable overlay fs
